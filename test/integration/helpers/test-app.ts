@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { Test, TestingModule } from '@nestjs/testing';
+import { LoggerModule } from 'nestjs-pino';
 import * as bcrypt from 'bcryptjs';
 import { AuthController } from '../../../src/modules/auth/presentation/auth.controller';
 import { RegisterUserUseCase } from '../../../src/modules/auth/application/use-cases/register-user.use-case';
@@ -30,10 +31,11 @@ export async function createIntegrationApp(): Promise<{
 
   const moduleRef: TestingModule = await Test.createTestingModule({
     imports: [
+      LoggerModule.forRoot({ pinoHttp: { level: 'silent' } }),
       PassportModule,
       JwtModule.register({
-        secret: 'test-secret',
-        signOptions: { expiresIn: '1h' },
+        secret: process.env.JWT_SECRET,
+        signOptions: { expiresIn: '1h', },
       }),
     ],
     controllers: [AuthController, TasksController],
